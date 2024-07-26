@@ -1,12 +1,18 @@
 import { Alert, Button, Label, Spinner, TextInput } from "flowbite-react";
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import {
+  signInStart,
+  signInSuccess,
+  signInFailure,
+} from "../redux/user/userSlice";
+import { useDispatch, useSelector } from "react-redux";
 
 const SignIn = () => {
-  const [formData, setFormData] = useState({});
-  const [errorMessage, setErrorMessage] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [formData, setFormData] = useState({});
+  const { loading, error: errorMessage } = useSelector((state) => state.user);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
@@ -14,11 +20,12 @@ const SignIn = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
+
     if (!formData.email || !formData.password) {
-      return setErrorMessage("Please fill out all fields.");
+      dispatch(signInFailure("Please fill out all fields."));
     }
     try {
+      dispatch(signInStart());
       const res = await fetch("/api/auth/signin", {
         method: "POST",
         headers: {
@@ -28,15 +35,14 @@ const SignIn = () => {
       });
       const data = await res.json();
       if (data.success == false) {
-        return setErrorMessage(data.message);
+        dispatch(signInFailure(data.message));
       }
       if (res.ok) {
+        dispatch(signInSuccess(data));
         navigate("/");
       }
     } catch (error) {
-      setErrorMessage(error.message);
-    } finally {
-      setIsLoading(false);
+      dispatch(signInFailure(error.message));
     }
   };
 
@@ -79,9 +85,9 @@ const SignIn = () => {
             <Button
               gradientDuoTone={"purpleToPink"}
               type="submit"
-              disabled={isLoading}
+              disabled={loading}
             >
-              {isLoading ? (
+              {loading ? (
                 <>
                   <Spinner size={"sm"} />
 
