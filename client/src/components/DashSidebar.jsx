@@ -23,6 +23,7 @@ const DashSidebar = () => {
               icon={HiUser}
               label={"User"}
               labelColor="dark"
+              as="div"
             >
               Profile
             </Sidebar.Item>
@@ -34,6 +35,7 @@ const DashSidebar = () => {
               icon={HiArrowSmRight}
               label={"User"}
               labelColor="dark"
+              as="div"
             >
               Sign Out
             </Sidebar.Item>
